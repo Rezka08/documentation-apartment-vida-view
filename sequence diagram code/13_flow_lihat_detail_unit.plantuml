@@ -1,0 +1,65 @@
+@startuml 9_Flow_Lihat_Detail_Unit
+title 9. Flow Lihat Detail Unit
+
+actor User
+participant "Halaman Browse" as Browse
+participant "Halaman Detail" as Detail
+participant "Unit Controller" as Ctrl
+participant "Unit Service" as Service
+participant Database as DB
+
+User -> Browse: Lihat list unit
+Browse -> User: Tampilkan grid unit
+
+User -> Browse: Klik unit tertentu
+Browse -> Detail: Redirect ke detail unit
+
+Detail -> Ctrl: Request detail unit (unit_id)
+Ctrl -> Service: Ambil detail unit
+Service -> DB: Query unit by ID
+DB -> Service: Return data unit lengkap
+Service -> Ctrl: Data unit
+
+Ctrl -> Service: Ambil galeri foto
+Service -> DB: Query foto unit
+DB -> Service: Return list foto
+Service -> Ctrl: Data foto
+
+Ctrl -> Service: Ambil fasilitas
+Service -> DB: Query fasilitas unit
+DB -> Service: Return list fasilitas
+Service -> Ctrl: Data fasilitas
+
+Ctrl -> Service: Ambil review/rating
+Service -> DB: Query review unit
+DB -> Service: Return list review
+Service -> Ctrl: Data review
+
+Ctrl -> Detail: Kirim semua data
+Detail -> User: Tampilkan detail lengkap unit
+
+User -> Detail: Lihat galeri foto
+Detail -> User: Tampilkan slideshow foto
+
+User -> Detail: Lihat lokasi di map
+Detail -> User: Tampilkan peta lokasi
+
+User -> Detail: Lihat review
+Detail -> User: Tampilkan list review dan rating
+
+User -> Detail: Cek ketersediaan
+Detail -> Ctrl: Request availability
+Ctrl -> DB: Query booking calendar
+DB -> Ctrl: Return data ketersediaan
+Ctrl -> Detail: Data availability
+Detail -> User: Tampilkan kalender ketersediaan
+
+alt User tertarik
+    User -> Detail: Klik tombol "Booking"
+    Detail -> User: Redirect ke halaman booking
+else User ingin info lebih
+    User -> Detail: Klik "Hubungi Pengelola"
+    Detail -> User: Tampilkan info kontak pengelola
+end
+
+@enduml

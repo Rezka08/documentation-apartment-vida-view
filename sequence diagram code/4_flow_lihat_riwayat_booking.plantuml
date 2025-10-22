@@ -1,0 +1,30 @@
+@startuml 17_Flow_Lihat_Riwayat_Booking
+title 17. Flow Lihat Riwayat Booking (Penyewa)
+
+actor Penyewa
+participant "Halaman Riwayat" as Page
+participant "Booking Controller" as Ctrl
+participant "Booking Service" as BookSvc
+participant Database as DB
+
+Penyewa -> Page: Start - Buka halaman riwayat sewa
+Page -> Ctrl: Request data booking penyewa
+Ctrl -> BookSvc: Ambil riwayat booking
+BookSvc -> DB: Query booking berdasarkan user ID
+DB -> BookSvc: Return data booking
+BookSvc -> Ctrl: List riwayat booking
+Ctrl -> Page: Kirim daftar riwayat booking
+Page -> Penyewa: Menampilkan daftar riwayat booking
+
+Penyewa -> Page: Klik salah satu item booking
+Page -> Ctrl: Request detail booking
+Ctrl -> BookSvc: Ambil detail booking
+BookSvc -> DB: Query detail booking by ID
+DB -> BookSvc: Return detail booking
+BookSvc -> Ctrl: Data detail booking
+Ctrl -> Page: Kirim detail booking
+Page -> Penyewa: Menampilkan detail booking
+
+Page -> Penyewa: End
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml 4_Flow_Dashboard_Admin
+title 4. Flow Dashboard Admin
+
+actor Admin
+participant "Dashboard Admin" as Dashboard
+participant "Admin Controller" as Ctrl
+participant "Statistics Service" as Stats
+participant Database as DB
+
+Admin -> Dashboard: Login sebagai admin
+Dashboard -> Ctrl: Request data dashboard
+
+Ctrl -> Stats: Ambil statistik sistem
+Stats -> DB: Query total user
+Stats -> DB: Query total unit
+Stats -> DB: Query total booking
+Stats -> DB: Query revenue
+Stats -> DB: Query aktivitas terbaru
+
+DB -> Stats: Return data statistik
+Stats -> Ctrl: Data statistik lengkap
+Ctrl -> Dashboard: Kirim data
+Dashboard -> Admin: Tampilkan overview statistik
+
+Admin -> Dashboard: Lihat grafik booking
+Dashboard -> Ctrl: Request data grafik
+Ctrl -> Stats: Ambil data booking per periode
+Stats -> DB: Query booking history
+DB -> Stats: Return data
+Stats -> Ctrl: Data grafik
+Ctrl -> Dashboard: Kirim data grafik
+Dashboard -> Admin: Tampilkan grafik
+
+Admin -> Dashboard: Lihat user terbaru
+Dashboard -> Ctrl: Request user terbaru
+Ctrl -> DB: Query user terbaru
+DB -> Ctrl: Return list user
+Ctrl -> Dashboard: Kirim data user
+Dashboard -> Admin: Tampilkan list user baru
+
+Admin -> Dashboard: Akses menu manajemen
+Dashboard -> Admin: Tampilkan menu (Kelola User, Unit, Booking, Konten, Laporan)
+
+@enduml

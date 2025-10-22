@@ -1,0 +1,59 @@
+@startuml 20_Flow_Melakukan_Pembayaran
+title 20. Flow Melakukan Pembayaran (Penyewa)
+
+actor Penyewa
+participant "Halaman Tagihan" as Page
+participant "Payment Controller" as Ctrl
+participant "Payment Service" as PaySvc
+participant "Payment Gateway" as Gateway
+participant "Notification Service" as Notif
+participant Database as DB
+
+Penyewa -> Page: Start - Buka halaman tagihan/pembayaran
+Page -> Ctrl: Request data tagihan
+Ctrl -> DB: Query booking pending payment
+DB -> Ctrl: Return data booking
+Ctrl -> Page: Kirim data tagihan
+Page -> Penyewa: Tampilkan informasi tagihan
+
+Penyewa -> Page: Klik tombol bayar
+Page -> Ctrl: Inisiasi pembayaran
+Ctrl -> PaySvc: Proses request pembayaran
+PaySvc -> DB: Ambil detail booking dan nominal
+DB -> PaySvc: Return detail pembayaran
+
+PaySvc -> Gateway: Menghubungkan ke payment gateway
+Gateway -> PaySvc: Return URL pembayaran
+PaySvc -> Ctrl: URL payment gateway
+Ctrl -> Page: Redirect ke payment gateway
+Page -> Penyewa: Tampilkan halaman payment gateway
+
+Penyewa -> Gateway: Melakukan pembayaran sesuai nominal
+Gateway -> Gateway: Proses transaksi pembayaran
+
+alt Pembayaran Berhasil
+    Gateway -> PaySvc: Callback pembayaran sukses
+    PaySvc -> DB: Menyimpan data pembayaran ke database
+    DB -> PaySvc: Data tersimpan
+    
+    PaySvc -> DB: Memperbarui status booking (paid/confirmed)
+    DB -> PaySvc: Status terupdate
+    
+    PaySvc -> Notif: Mengirim notifikasi ke pemilik dan admin
+    Notif -> PaySvc: Notifikasi terkirim
+    
+    PaySvc -> Ctrl: Pembayaran berhasil
+    Ctrl -> Page: Redirect ke halaman sukses
+    Page -> Penyewa: Tampilkan konfirmasi pembayaran berhasil
+    
+else Pembayaran Gagal
+    Gateway -> PaySvc: Callback pembayaran gagal
+    PaySvc -> DB: Log transaksi gagal
+    PaySvc -> Ctrl: Pembayaran gagal
+    Ctrl -> Page: Redirect ke halaman error
+    Page -> Penyewa: Tampilkan pesan pembayaran gagal
+end
+
+Page -> Penyewa: End
+
+@enduml

@@ -1,0 +1,109 @@
+@startuml 13_Flow_Mengelola_Unit
+title 13. Flow Mengelola Unit
+
+actor User as "Admin/Pengelola"
+participant "Halaman Kelola Unit" as Page
+participant "Unit Controller" as Ctrl
+participant "Unit Service" as Service
+participant "File Storage" as Storage
+participant Database as DB
+
+User -> Page: Akses kelola unit
+Page -> Ctrl: Request daftar unit
+Ctrl -> Service: Ambil list unit
+Service -> DB: Query units
+DB -> Service: Return data unit
+Service -> Ctrl: List unit
+Ctrl -> Page: Kirim data
+Page -> User: Tampilkan list unit
+
+alt Tambah Unit Baru
+    User -> Page: Klik "Tambah Unit"
+    Page -> User: Tampilkan form tambah unit
+    
+    User -> Page: Isi data unit (nama, tipe, harga, lokasi, deskripsi)
+    User -> Page: Upload foto unit
+    User -> Page: Pilih fasilitas
+    User -> Page: Submit data unit
+    
+    Page -> Ctrl: Kirim data unit baru
+    Ctrl -> Service: Validasi data
+    
+    Service -> Storage: Upload foto-foto
+    Storage -> Service: Return URLs foto
+    
+    Service -> DB: Insert data unit
+    Service -> DB: Insert fasilitas unit
+    Service -> DB: Insert foto unit
+    DB -> Service: Unit ID
+    
+    Service -> Ctrl: Unit berhasil ditambahkan
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> User: Unit berhasil dibuat
+end
+
+alt Edit Unit
+    User -> Page: Pilih unit untuk edit
+    Page -> Ctrl: Request detail unit
+    Ctrl -> Service: Ambil detail
+    Service -> DB: Query unit detail
+    DB -> Service: Return data
+    Service -> Ctrl: Data unit
+    Ctrl -> Page: Kirim data
+    Page -> User: Tampilkan form edit terisi
+    
+    User -> Page: Edit data unit
+    User -> Page: Update foto (optional)
+    User -> Page: Submit perubahan
+    
+    Page -> Ctrl: Kirim data update
+    Ctrl -> Service: Validasi data
+    
+    alt Ada foto baru
+        Service -> Storage: Upload foto baru
+        Storage -> Service: Return URLs
+    end
+    
+    Service -> DB: Update data unit
+    DB -> Service: Berhasil
+    Service -> Ctrl: Unit terupdate
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> User: Unit berhasil diupdate
+end
+
+alt Hapus Unit
+    User -> Page: Pilih unit untuk hapus
+    Page -> User: Konfirmasi hapus
+    User -> Page: Konfirmasi
+    
+    Page -> Ctrl: Request hapus unit
+    Ctrl -> Service: Cek dependency
+    Service -> DB: Cek apakah ada booking aktif
+    
+    alt Tidak ada booking aktif
+        DB -> Service: Aman untuk dihapus
+        Service -> DB: Soft delete unit
+        DB -> Service: Berhasil
+        Service -> Ctrl: Unit terhapus
+        Ctrl -> Page: Konfirmasi sukses
+        Page -> User: Unit berhasil dihapus
+    else Ada booking aktif
+        DB -> Service: Ada booking
+        Service -> Ctrl: Tidak dapat dihapus
+        Ctrl -> Page: Pesan error
+        Page -> User: Tidak dapat hapus, ada booking aktif
+    end
+end
+
+alt Update Status Unit
+    User -> Page: Toggle status unit (aktif/nonaktif)
+    Page -> Ctrl: Request update status
+    Ctrl -> Service: Update status
+    Service -> DB: Update status unit
+    DB -> Service: Berhasil
+    Service -> Ctrl: Status terupdate
+    Ctrl -> Page: Konfirmasi
+    Page -> User: Status unit berhasil diubah
+end
+
+@enduml

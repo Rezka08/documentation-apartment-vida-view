@@ -1,0 +1,50 @@
+@startuml 3_Flow_Browse_Unit
+title 3. Flow Browse Unit
+
+actor User
+participant "Halaman Utama" as Home
+participant "Halaman Browse" as Browse
+participant "Search Controller" as Ctrl
+participant "Unit Service" as Service
+participant Database as DB
+
+User -> Home: Akses website
+Home -> User: Tampilkan halaman utama
+
+User -> Home: Klik "Lihat Semua Unit"
+Home -> Browse: Redirect ke halaman browse
+
+Browse -> Ctrl: Request daftar unit
+Ctrl -> Service: Ambil semua unit aktif
+Service -> DB: Query unit yang tersedia
+DB -> Service: Return data unit
+Service -> Ctrl: List unit
+Ctrl -> Browse: Kirim data unit
+Browse -> User: Tampilkan grid unit
+
+alt User melakukan filter
+    User -> Browse: Pilih filter (harga, tipe, lokasi)
+    Browse -> Ctrl: Request dengan filter
+    Ctrl -> Service: Filter unit
+    Service -> DB: Query unit dengan kriteria
+    DB -> Service: Return hasil filter
+    Service -> Ctrl: List unit terfilter
+    Ctrl -> Browse: Kirim data
+    Browse -> User: Tampilkan hasil filter
+end
+
+alt User melakukan pencarian
+    User -> Browse: Input kata kunci pencarian
+    Browse -> Ctrl: Request search
+    Ctrl -> Service: Cari unit berdasarkan keyword
+    Service -> DB: Query pencarian
+    DB -> Service: Return hasil pencarian
+    Service -> Ctrl: List hasil
+    Ctrl -> Browse: Kirim data
+    Browse -> User: Tampilkan hasil pencarian
+end
+
+User -> Browse: Klik unit tertentu
+Browse -> User: Redirect ke detail unit
+
+@enduml

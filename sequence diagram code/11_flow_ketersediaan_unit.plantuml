@@ -1,0 +1,61 @@
+@startuml 7_Flow_Kelola_Ketersediaan_Unit
+title 7. Flow Kelola Ketersediaan Unit
+
+actor Pengelola
+participant "Halaman Kelola Unit" as Page
+participant "Availability Controller" as Ctrl
+participant "Availability Service" as Service
+participant Database as DB
+
+Pengelola -> Page: Akses kelola ketersediaan
+Page -> Ctrl: Request daftar unit
+Ctrl -> DB: Query unit milik pengelola
+DB -> Ctrl: Return list unit
+Ctrl -> Page: Kirim data unit
+Page -> Pengelola: Tampilkan list unit
+
+Pengelola -> Page: Pilih unit untuk dikelola
+Page -> Ctrl: Request ketersediaan unit
+Ctrl -> Service: Ambil kalender ketersediaan
+Service -> DB: Query availability calendar
+DB -> Service: Return data ketersediaan
+Service -> Ctrl: Data kalender
+Ctrl -> Page: Kirim data
+Page -> Pengelola: Tampilkan kalender ketersediaan
+
+alt Blokir tanggal
+    Pengelola -> Page: Pilih tanggal untuk diblokir
+    Pengelola -> Page: Submit blokir
+    Page -> Ctrl: Request blokir tanggal
+    Ctrl -> Service: Validasi tanggal
+    Service -> DB: Cek apakah ada booking
+    alt Tidak ada booking
+        DB -> Service: Tanggal kosong
+        Service -> DB: Update status tanggal (blocked)
+        DB -> Service: Berhasil
+        Service -> Ctrl: Tanggal berhasil diblokir
+        Ctrl -> Page: Konfirmasi sukses
+        Page -> Pengelola: Tanggal berhasil diblokir
+    else Ada booking
+        DB -> Service: Ada booking
+        Service -> Ctrl: Tidak bisa diblokir
+        Ctrl -> Page: Pesan error
+        Page -> Pengelola: Tidak dapat blokir, ada booking
+    end
+end
+
+alt Buka blokir tanggal
+    Pengelola -> Page: Pilih tanggal yang diblokir
+    Pengelola -> Page: Klik buka blokir
+    Page -> Ctrl: Request buka blokir
+    Ctrl -> Service: Proses buka blokir
+    Service -> DB: Update status tanggal (available)
+    DB -> Service: Berhasil
+    Service -> Ctrl: Tanggal tersedia kembali
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> Pengelola: Tanggal tersedia untuk booking
+end
+
+Page -> Pengelola: Update kalender ketersediaan
+
+@enduml

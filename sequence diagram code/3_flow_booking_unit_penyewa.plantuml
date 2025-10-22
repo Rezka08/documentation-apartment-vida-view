@@ -1,0 +1,56 @@
+@startuml 16_Flow_Booking_Unit_Penyewa
+title 16. Flow Booking Unit (Penyewa)
+
+actor Penyewa
+participant "Halaman Unit" as Page
+participant "Booking Controller" as Ctrl
+participant "Booking Service" as BookSvc
+participant "Availability Service" as AvailSvc
+participant "Notification Service" as Notif
+participant Database as DB
+
+Penyewa -> Page: Start - Buka halaman unit
+Page -> Ctrl: Request daftar unit
+Ctrl -> DB: Query unit tersedia
+DB -> Ctrl: Return data unit
+Ctrl -> Page: Kirim daftar unit
+Page -> Penyewa: Menampilkan daftar unit
+
+Penyewa -> Page: Memilih unit yang diinginkan
+Page -> Penyewa: Tampilkan detail unit terpilih
+
+Penyewa -> Page: Memilih tanggal sewa (checkin/checkout)
+Page -> Ctrl: Request cek ketersediaan
+Ctrl -> AvailSvc: Validasi ketersediaan unit
+AvailSvc -> DB: Query booking untuk tanggal tersebut
+
+alt Unit Tersedia
+    DB -> AvailSvc: Unit available
+    AvailSvc -> Ctrl: Unit tersedia
+    Ctrl -> BookSvc: Hitung total biaya
+    BookSvc -> Ctrl: Total biaya
+    Ctrl -> Page: Kirim konfirmasi ketersediaan
+    Page -> Penyewa: Menampilkan total biaya
+    
+    Penyewa -> Page: Konfirmasi booking
+    Page -> Ctrl: Submit data booking
+    Ctrl -> BookSvc: Proses booking
+    BookSvc -> DB: Simpan data booking
+    DB -> BookSvc: Booking berhasil disimpan
+    
+    BookSvc -> Notif: Kirim notifikasi ke pemilik/pengelola
+    Notif -> BookSvc: Notifikasi terkirim
+    
+    BookSvc -> Ctrl: Booking berhasil
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> Penyewa: Tampilkan konfirmasi booking
+    
+else Unit Tidak Tersedia
+    DB -> AvailSvc: Unit not available
+    AvailSvc -> Ctrl: Unit tidak tersedia
+    Ctrl -> Page: Kirim pesan error
+    Page -> Penyewa: Unit tidak tersedia, kembali ke pilih unit
+    Penyewa -> Page: Memilih unit yang diinginkan (loop)
+end
+
+@enduml

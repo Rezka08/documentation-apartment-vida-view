@@ -1,0 +1,138 @@
+@startuml 14_Flow_Mengelola_User
+title 14. Flow Mengelola User
+
+actor Admin
+participant "Halaman Kelola User" as Page
+participant "User Controller" as Ctrl
+participant "User Service" as Service
+participant "Notification Service" as Notif
+participant Database as DB
+
+Admin -> Page: Akses kelola user
+Page -> Ctrl: Request daftar user
+Ctrl -> Service: Ambil list user
+Service -> DB: Query all users
+DB -> Service: Return data user
+Service -> Ctrl: List user
+Ctrl -> Page: Kirim data
+Page -> Admin: Tampilkan list user
+
+Admin -> Page: Filter user (role, status, tanggal daftar)
+Page -> Ctrl: Request dengan filter
+Ctrl -> Service: Filter data user
+Service -> DB: Query user dengan kriteria
+DB -> Service: Return hasil filter
+Service -> Ctrl: Data terfilter
+Ctrl -> Page: Kirim data
+Page -> Admin: Tampilkan hasil filter
+
+Admin -> Page: Search user (nama/email)
+Page -> Ctrl: Request search
+Ctrl -> Service: Cari user
+Service -> DB: Query search user
+DB -> Service: Return hasil
+Service -> Ctrl: Data hasil
+Ctrl -> Page: Kirim data
+Page -> Admin: Tampilkan hasil pencarian
+
+alt Lihat Detail User
+    Admin -> Page: Klik user tertentu
+    Page -> Ctrl: Request detail user (user_id)
+    Ctrl -> Service: Ambil detail user
+    Service -> DB: Query user detail
+    Service -> DB: Query aktivitas user
+    Service -> DB: Query booking user
+    DB -> Service: Return data lengkap
+    Service -> Ctrl: Data detail
+    Ctrl -> Page: Kirim data
+    Page -> Admin: Tampilkan profile & aktivitas user
+end
+
+alt Tambah User Baru
+    Admin -> Page: Klik "Tambah User"
+    Page -> Admin: Tampilkan form tambah user
+    
+    Admin -> Page: Isi data (nama, email, password, role)
+    Admin -> Page: Submit data user
+    
+    Page -> Ctrl: Kirim data user baru
+    Ctrl -> Service: Validasi data
+    Service -> DB: Cek email sudah ada?
+    
+    alt Email belum terdaftar
+        DB -> Service: Email available
+        Service -> Service: Hash password
+        Service -> DB: Insert user baru
+        DB -> Service: User ID
+        Service -> Notif: Kirim email welcome
+        Service -> Ctrl: User berhasil dibuat
+        Ctrl -> Page: Konfirmasi sukses
+        Page -> Admin: User berhasil ditambahkan
+    else Email sudah ada
+        DB -> Service: Email exists
+        Service -> Ctrl: Error duplicate
+        Ctrl -> Page: Pesan error
+        Page -> Admin: Email sudah terdaftar
+    end
+end
+
+alt Edit User
+    Admin -> Page: Pilih user untuk edit
+    Page -> Ctrl: Request detail
+    Ctrl -> DB: Query user data
+    DB -> Ctrl: Return data
+    Ctrl -> Page: Kirim data
+    Page -> Admin: Tampilkan form edit
+    
+    Admin -> Page: Edit data user
+    Admin -> Page: Submit perubahan
+    
+    Page -> Ctrl: Kirim data update
+    Ctrl -> Service: Validasi & update
+    Service -> DB: Update user data
+    DB -> Service: Berhasil
+    Service -> Ctrl: User terupdate
+    Ctrl -> Page: Konfirmasi
+    Page -> Admin: User berhasil diupdate
+end
+
+alt Nonaktifkan User
+    Admin -> Page: Klik "Nonaktifkan"
+    Page -> Admin: Konfirmasi nonaktifkan
+    Admin -> Page: Konfirmasi
+    
+    Page -> Ctrl: Request nonaktifkan user
+    Ctrl -> Service: Update status user
+    Service -> DB: Update status (inactive)
+    DB -> Service: Berhasil
+    Service -> Notif: Kirim notifikasi ke user
+    Service -> Ctrl: User dinonaktifkan
+    Ctrl -> Page: Konfirmasi
+    Page -> Admin: User berhasil dinonaktifkan
+end
+
+alt Hapus User
+    Admin -> Page: Pilih user untuk hapus
+    Page -> Admin: Konfirmasi hapus
+    Admin -> Page: Konfirmasi
+    
+    Page -> Ctrl: Request hapus user
+    Ctrl -> Service: Cek dependency
+    Service -> DB: Cek booking/unit terkait
+    
+    alt Aman dihapus
+        DB -> Service: No active dependency
+        Service -> DB: Soft delete user
+        DB -> Service: Berhasil
+        Service -> Ctrl: User terhapus
+        Ctrl -> Page: Konfirmasi
+        Page -> Admin: User berhasil dihapus
+    else Ada dependency
+        DB -> Service: Has dependencies
+        Service -> Ctrl: Error
+        Ctrl -> Page: Pesan error
+        Page -> Admin: Tidak dapat hapus, user memiliki data terkait
+    end
+end
+
+@enduml

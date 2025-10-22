@@ -1,0 +1,61 @@
+@startuml 11_Flow_Membuat_Laporan_Umum
+title 11. Flow Membuat Laporan Umum
+
+actor User as "Admin/Pengelola"
+participant "Halaman Laporan" as Page
+participant "Report Controller" as Ctrl
+participant "Report Service" as Service
+participant Database as DB
+
+User -> Page: Akses menu buat laporan
+Page -> User: Tampilkan form pembuatan laporan
+
+User -> Page: Pilih tipe laporan (Booking, Revenue, Occupancy)
+Page -> User: Tampilkan option sesuai tipe
+
+User -> Page: Pilih periode (tanggal mulai - selesai)
+User -> Page: Pilih filter tambahan (unit, status, dll)
+Page -> User: Preview kriteria
+
+User -> Page: Klik "Generate Laporan"
+Page -> Ctrl: Submit request laporan
+Ctrl -> Service: Validasi parameter
+
+Service -> DB: Query data booking
+Service -> DB: Query data payment
+Service -> DB: Query data unit
+Service -> DB: Query data user
+
+DB -> Service: Return raw data
+
+Service -> Service: Proses dan analisis data
+Service -> Service: Hitung total booking
+Service -> Service: Hitung revenue
+Service -> Service: Hitung occupancy rate
+Service -> Service: Identifikasi trend
+
+Service -> Service: Generate grafik
+Service -> Service: Generate tabel ringkasan
+Service -> Service: Generate insight
+
+Service -> DB: Simpan laporan yang sudah dibuat
+DB -> Service: Report ID
+
+Service -> Ctrl: Laporan berhasil dibuat
+Ctrl -> Page: Kirim data laporan
+Page -> User: Tampilkan laporan hasil generate
+
+User -> Page: Review laporan
+alt Laporan sesuai
+    User -> Page: Simpan laporan
+    Page -> Ctrl: Konfirmasi simpan
+    Ctrl -> DB: Update status laporan (saved)
+    DB -> Ctrl: Berhasil
+    Ctrl -> Page: Konfirmasi
+    Page -> User: Laporan tersimpan
+else Perlu penyesuaian
+    User -> Page: Edit parameter
+    Page -> User: Kembali ke form edit
+end
+
+@enduml

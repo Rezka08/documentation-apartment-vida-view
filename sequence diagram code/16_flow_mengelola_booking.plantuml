@@ -1,0 +1,82 @@
+@startuml 12_Flow_Mengelola_Booking
+title 12. Flow Mengelola Booking
+
+actor User as "Admin/Pengelola"
+participant "Halaman Kelola Booking" as Page
+participant "Booking Controller" as Ctrl
+participant "Booking Service" as Service
+participant "Notification Service" as Notif
+participant Database as DB
+
+User -> Page: Akses kelola booking
+Page -> Ctrl: Request daftar booking
+Ctrl -> Service: Ambil list booking
+Service -> DB: Query all bookings
+DB -> Service: Return data booking
+Service -> Ctrl: List booking
+Ctrl -> Page: Kirim data
+Page -> User: Tampilkan list booking
+
+User -> Page: Filter booking (status, tanggal, unit)
+Page -> Ctrl: Request dengan filter
+Ctrl -> Service: Filter data
+Service -> DB: Query booking dengan kriteria
+DB -> Service: Return hasil filter
+Service -> Ctrl: Data terfilter
+Ctrl -> Page: Kirim data
+Page -> User: Tampilkan hasil filter
+
+User -> Page: Pilih booking untuk detail
+Page -> Ctrl: Request detail booking (booking_id)
+Ctrl -> Service: Ambil detail booking
+Service -> DB: Query booking detail
+DB -> Service: Return data lengkap
+Service -> Ctrl: Data detail
+Ctrl -> Page: Kirim data
+Page -> User: Tampilkan detail booking
+
+alt Approve Booking
+    User -> Page: Klik "Approve"
+    Page -> Ctrl: Request approve
+    Ctrl -> Service: Proses approval
+    Service -> DB: Update status booking (approved)
+    DB -> Service: Berhasil
+    Service -> Notif: Kirim notifikasi ke penyewa
+    Notif -> Service: Notifikasi terkirim
+    Service -> Ctrl: Booking diapprove
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> User: Booking berhasil diapprove
+end
+
+alt Reject Booking
+    User -> Page: Klik "Reject"
+    Page -> User: Input alasan reject
+    User -> Page: Submit reject
+    Page -> Ctrl: Request reject dengan alasan
+    Ctrl -> Service: Proses rejection
+    Service -> DB: Update status booking (rejected)
+    Service -> DB: Simpan alasan
+    DB -> Service: Berhasil
+    Service -> Notif: Kirim notifikasi ke penyewa
+    Notif -> Service: Notifikasi terkirim
+    Service -> Ctrl: Booking direject
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> User: Booking berhasil direject
+end
+
+alt Cancel Booking
+    User -> Page: Klik "Cancel"
+    Page -> User: Konfirmasi cancel
+    User -> Page: Konfirmasi
+    Page -> Ctrl: Request cancel
+    Ctrl -> Service: Proses cancellation
+    Service -> DB: Update status booking (cancelled)
+    Service -> DB: Update ketersediaan unit
+    DB -> Service: Berhasil
+    Service -> Notif: Kirim notifikasi
+    Service -> Ctrl: Booking dibatalkan
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> User: Booking berhasil dibatalkan
+end
+
+@enduml

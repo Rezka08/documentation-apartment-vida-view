@@ -1,0 +1,52 @@
+@startuml 18_Flow_Download_Invoice_Booking
+title 18. Flow Download Invoice Booking (Penyewa)
+
+actor Penyewa
+participant "Halaman Unit" as Page
+participant "Booking Controller" as Ctrl
+participant "Invoice Service" as InvSvc
+participant "PDF Generator" as PDF
+participant Database as DB
+
+Penyewa -> Page: Start - Buka halaman unit
+Page -> Ctrl: Request daftar unit
+Ctrl -> DB: Query unit
+DB -> Ctrl: Return data unit
+Ctrl -> Page: Kirim daftar unit
+Page -> Penyewa: Menampilkan daftar unit
+
+Penyewa -> Page: Memilih unit yang diinginkan
+Page -> Penyewa: Tampilkan detail unit
+
+Penyewa -> Page: Memilih tanggal sewa
+Page -> Ctrl: Cek ketersediaan unit
+Ctrl -> DB: Query ketersediaan
+DB -> Ctrl: Unit tersedia
+
+alt Unit Tersedia
+    Ctrl -> Page: Unit available + total biaya
+    Page -> Penyewa: Menampilkan total biaya
+    
+    Penyewa -> Page: Klik tombol download invoice
+    Page -> Ctrl: Request generate invoice
+    Ctrl -> InvSvc: Ambil data booking
+    InvSvc -> DB: Query data booking detail
+    DB -> InvSvc: Return data booking
+    
+    InvSvc -> PDF: Generate file invoice dalam bentuk PDF
+    PDF -> PDF: Format data ke template invoice
+    PDF -> InvSvc: File PDF siap
+    InvSvc -> Ctrl: Invoice PDF
+    Ctrl -> Page: Kirim file PDF
+    
+    Page -> Penyewa: Mengunduh file PDF
+    Penyewa -> Penyewa: Mendapatkan invoice dalam bentuk PDF
+    
+    Page -> Penyewa: End
+    
+else Unit Tidak Tersedia
+    Ctrl -> Page: Unit tidak tersedia
+    Page -> Penyewa: Tampilkan pesan unit tidak tersedia
+end
+
+@enduml

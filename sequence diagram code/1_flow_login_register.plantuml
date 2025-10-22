@@ -1,0 +1,55 @@
+@startuml 1_Flow_Login_Register
+title 1. Flow Login Register
+
+actor User
+participant "Halaman Login/Register" as Page
+participant "Controller" as Ctrl
+participant "Authentication Service" as Auth
+participant Database as DB
+
+== Proses Register ==
+User -> Page: Akses halaman register
+Page -> User: Tampilkan form register
+
+User -> Page: Isi data (nama, email, password, role)
+Page -> Ctrl: Submit data registrasi
+Ctrl -> Auth: Validasi data
+Auth -> DB: Cek email sudah terdaftar?
+alt Email sudah terdaftar
+    DB -> Auth: Email sudah ada
+    Auth -> Ctrl: Registrasi gagal
+    Ctrl -> Page: Tampilkan pesan error
+    Page -> User: Email sudah terdaftar
+else Email belum terdaftar
+    DB -> Auth: Email tersedia
+    Auth -> Auth: Hash password
+    Auth -> DB: Simpan data user baru
+    DB -> Auth: Data berhasil disimpan
+    Auth -> Ctrl: Registrasi berhasil
+    Ctrl -> Page: Redirect ke halaman login
+    Page -> User: Tampilkan pesan sukses
+end
+
+== Proses Login ==
+User -> Page: Akses halaman login
+Page -> User: Tampilkan form login
+
+User -> Page: Isi email dan password
+Page -> Ctrl: Submit kredensial
+Ctrl -> Auth: Validasi kredensial
+Auth -> DB: Cek data user
+alt Kredensial valid
+    DB -> Auth: Data user ditemukan
+    Auth -> Auth: Verifikasi password
+    Auth -> Auth: Generate session/token
+    Auth -> Ctrl: Login berhasil + token
+    Ctrl -> Page: Set session + redirect dashboard
+    Page -> User: Redirect ke dashboard sesuai role
+else Kredensial tidak valid
+    DB -> Auth: Data tidak cocok
+    Auth -> Ctrl: Login gagal
+    Ctrl -> Page: Tampilkan pesan error
+    Page -> User: Email atau password salah
+end
+
+@enduml

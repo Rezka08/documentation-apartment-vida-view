@@ -1,0 +1,49 @@
+@startuml 19_Flow_Memberi_Ulasan_Rating
+title 19. Flow Memberi Ulasan dan Rating (Penyewa)
+
+actor Penyewa
+participant "Halaman Riwayat" as Page
+participant "Review Controller" as Ctrl
+participant "Review Service" as RevSvc
+participant Database as DB
+
+Penyewa -> Page: Start - Buka halaman riwayat sewa
+Page -> Ctrl: Request riwayat booking
+Ctrl -> DB: Query booking penyewa
+DB -> Ctrl: Return data booking
+Ctrl -> Page: Kirim daftar riwayat booking
+Page -> Penyewa: Menampilkan daftar riwayat booking
+
+Penyewa -> Page: Klik salah satu item booking
+Page -> Ctrl: Request detail booking
+Ctrl -> DB: Query detail booking
+DB -> Ctrl: Return detail
+Ctrl -> Page: Kirim detail booking
+Page -> Penyewa: Menampilkan detail booking
+
+Penyewa -> Page: Klik tombol memberi ulasan
+Page -> Ctrl: Request form ulasan
+Ctrl -> Page: Kirim form ulasan
+Page -> Penyewa: Menampilkan form ulasan
+
+Penyewa -> Page: Mengisi rating dan komentar
+Page -> Penyewa: Tampilkan preview rating dan komentar
+
+Penyewa -> Page: Mengirim rating dan komentar
+Page -> Ctrl: Submit data review
+Ctrl -> RevSvc: Validasi data review
+RevSvc -> RevSvc: Validasi rating (1-5)
+RevSvc -> RevSvc: Validasi komentar
+
+RevSvc -> DB: Menyimpan ulasan ke database
+DB -> RevSvc: Ulasan berhasil disimpan
+RevSvc -> DB: Update rating unit (recalculate average)
+DB -> RevSvc: Rating unit terupdate
+
+RevSvc -> Ctrl: Review berhasil disimpan
+Ctrl -> Page: Konfirmasi sukses
+Page -> Penyewa: Tampilkan pesan sukses
+
+Page -> Penyewa: End
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml 6_Flow_Dashboard_Penyewa
+title 6. Flow Dashboard Penyewa
+
+actor Penyewa
+participant "Dashboard Penyewa" as Dashboard
+participant "Tenant Controller" as Ctrl
+participant "Booking Service" as BookSvc
+participant Database as DB
+
+Penyewa -> Dashboard: Login sebagai penyewa
+Dashboard -> Ctrl: Request data dashboard
+
+Ctrl -> BookSvc: Ambil booking penyewa
+BookSvc -> DB: Query booking berdasarkan user ID
+DB -> BookSvc: Return data booking
+BookSvc -> Ctrl: List booking
+
+Ctrl -> Dashboard: Kirim data booking
+Dashboard -> Penyewa: Tampilkan overview
+
+Penyewa -> Dashboard: Lihat booking aktif
+Dashboard -> Ctrl: Request booking aktif
+Ctrl -> BookSvc: Filter booking aktif
+BookSvc -> DB: Query booking dengan status aktif
+DB -> BookSvc: Return list booking aktif
+BookSvc -> Ctrl: Data booking aktif
+Ctrl -> Dashboard: Kirim data
+Dashboard -> Penyewa: Tampilkan list booking aktif
+
+Penyewa -> Dashboard: Lihat riwayat booking
+Dashboard -> Ctrl: Request riwayat
+Ctrl -> BookSvc: Ambil riwayat booking
+BookSvc -> DB: Query semua booking penyewa
+DB -> BookSvc: Return riwayat
+BookSvc -> Ctrl: Data riwayat
+Ctrl -> Dashboard: Kirim data
+Dashboard -> Penyewa: Tampilkan riwayat booking
+
+Penyewa -> Dashboard: Lihat detail booking tertentu
+Dashboard -> Ctrl: Request detail booking
+Ctrl -> BookSvc: Ambil detail booking
+BookSvc -> DB: Query booking detail
+DB -> BookSvc: Return detail
+BookSvc -> Ctrl: Data detail
+Ctrl -> Dashboard: Kirim data
+Dashboard -> Penyewa: Tampilkan detail booking (invoice, tanggal, status)
+
+Penyewa -> Dashboard: Akses menu
+Dashboard -> Penyewa: Tampilkan menu (Browse Unit, Booking Saya, Profile)
+
+@enduml

@@ -1,0 +1,49 @@
+@startuml 5_Flow_Dashboard_Pengelola
+title 5. Flow Dashboard Pengelola
+
+actor Pengelola
+participant "Dashboard Pengelola" as Dashboard
+participant "Manager Controller" as Ctrl
+participant "Unit Service" as UnitSvc
+participant "Booking Service" as BookSvc
+participant Database as DB
+
+Pengelola -> Dashboard: Login sebagai pengelola
+Dashboard -> Ctrl: Request data dashboard
+
+Ctrl -> UnitSvc: Ambil unit yang dikelola
+UnitSvc -> DB: Query unit berdasarkan pengelola
+DB -> UnitSvc: Return data unit
+UnitSvc -> Ctrl: List unit
+
+Ctrl -> BookSvc: Ambil booking untuk unit tersebut
+BookSvc -> DB: Query booking untuk unit pengelola
+DB -> BookSvc: Return data booking
+BookSvc -> Ctrl: List booking
+
+Ctrl -> Dashboard: Kirim data lengkap
+Dashboard -> Pengelola: Tampilkan overview
+
+Pengelola -> Dashboard: Lihat statistik unit
+Dashboard -> Ctrl: Request statistik
+Ctrl -> UnitSvc: Hitung statistik
+UnitSvc -> DB: Query occupancy rate
+UnitSvc -> DB: Query pending bookings
+DB -> UnitSvc: Return data
+UnitSvc -> Ctrl: Data statistik
+Ctrl -> Dashboard: Kirim data
+Dashboard -> Pengelola: Tampilkan statistik unit
+
+Pengelola -> Dashboard: Lihat booking pending
+Dashboard -> Ctrl: Request booking pending
+Ctrl -> BookSvc: Ambil booking pending
+BookSvc -> DB: Query booking status pending
+DB -> BookSvc: Return list booking
+BookSvc -> Ctrl: Data booking
+Ctrl -> Dashboard: Kirim data
+Dashboard -> Pengelola: Tampilkan list booking pending
+
+Pengelola -> Dashboard: Akses menu manajemen
+Dashboard -> Pengelola: Tampilkan menu (Kelola Unit, Ketersediaan, Booking)
+
+@enduml

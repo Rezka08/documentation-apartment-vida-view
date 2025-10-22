@@ -1,0 +1,60 @@
+@startuml 10_Flow_Melihat_Laporan
+title 10. Flow Melihat Laporan
+
+actor User as "Admin/Pengelola"
+participant "Halaman Laporan" as Page
+participant "Report Controller" as Ctrl
+participant "Report Service" as Service
+participant Database as DB
+
+User -> Page: Akses menu laporan
+Page -> Ctrl: Request daftar laporan
+Ctrl -> Service: Ambil list laporan tersedia
+Service -> DB: Query laporan yang sudah dibuat
+DB -> Service: Return list laporan
+Service -> Ctrl: Data laporan
+Ctrl -> Page: Kirim data
+Page -> User: Tampilkan list laporan
+
+User -> Page: Filter laporan (periode, tipe)
+Page -> Ctrl: Request dengan filter
+Ctrl -> Service: Filter laporan
+Service -> DB: Query laporan dengan kriteria
+DB -> Service: Return hasil filter
+Service -> Ctrl: Data terfilter
+Ctrl -> Page: Kirim data
+Page -> User: Tampilkan hasil filter
+
+User -> Page: Pilih laporan untuk dilihat
+Page -> Ctrl: Request detail laporan (report_id)
+Ctrl -> Service: Ambil detail laporan
+Service -> DB: Query laporan detail
+DB -> Service: Return data laporan lengkap
+Service -> Ctrl: Data detail
+
+Ctrl -> Service: Generate visualisasi data
+Service -> Service: Proses data menjadi chart/grafik
+Service -> Ctrl: Data visualisasi
+Ctrl -> Page: Kirim data lengkap
+Page -> User: Tampilkan laporan detail (tabel, grafik, statistik)
+
+alt Export Laporan
+    User -> Page: Klik tombol export
+    Page -> User: Pilih format (PDF/Excel)
+    User -> Page: Pilih format
+    Page -> Ctrl: Request export
+    Ctrl -> Service: Generate file export
+    Service -> Service: Convert data ke format pilihan
+    Service -> Ctrl: File siap
+    Ctrl -> Page: Kirim file
+    Page -> User: Download file laporan
+end
+
+alt Print Laporan
+    User -> Page: Klik tombol print
+    Page -> User: Tampilkan print preview
+    User -> Page: Konfirmasi print
+    Page -> User: Kirim ke printer
+end
+
+@enduml

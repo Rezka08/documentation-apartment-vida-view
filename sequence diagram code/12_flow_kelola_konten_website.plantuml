@@ -1,0 +1,81 @@
+@startuml 8_Flow_Kelola_Konten_Website
+title 8. Flow Kelola Konten Website
+
+actor Admin
+participant "Halaman Kelola Konten" as Page
+participant "Content Controller" as Ctrl
+participant "Content Service" as Service
+participant Database as DB
+participant "File Storage" as Storage
+
+Admin -> Page: Akses kelola konten
+Page -> Ctrl: Request list konten
+Ctrl -> Service: Ambil semua konten
+Service -> DB: Query konten website
+DB -> Service: Return data konten
+Service -> Ctrl: List konten
+Ctrl -> Page: Kirim data
+Page -> Admin: Tampilkan list konten (Banner, About, FAQ, dll)
+
+alt Edit Konten
+    Admin -> Page: Pilih konten untuk edit
+    Page -> Ctrl: Request detail konten
+    Ctrl -> DB: Query konten by ID
+    DB -> Ctrl: Return data konten
+    Ctrl -> Page: Kirim data
+    Page -> Admin: Tampilkan form edit
+    
+    Admin -> Page: Edit teks/gambar konten
+    Page -> Admin: Preview perubahan
+    
+    Admin -> Page: Submit perubahan
+    Page -> Ctrl: Kirim data konten baru
+    
+    alt Ada upload gambar
+        Ctrl -> Storage: Upload gambar baru
+        Storage -> Ctrl: Return URL gambar
+    end
+    
+    Ctrl -> Service: Update konten
+    Service -> DB: Update data konten
+    DB -> Service: Berhasil
+    Service -> Ctrl: Konten terupdate
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> Admin: Konten berhasil diupdate
+end
+
+alt Tambah Konten Baru
+    Admin -> Page: Klik tambah konten
+    Page -> Admin: Tampilkan form tambah
+    
+    Admin -> Page: Isi data konten (tipe, judul, isi, gambar)
+    Admin -> Page: Submit konten baru
+    
+    Page -> Ctrl: Kirim data konten
+    
+    alt Ada upload file
+        Ctrl -> Storage: Upload file
+        Storage -> Ctrl: Return URL file
+    end
+    
+    Ctrl -> Service: Simpan konten baru
+    Service -> DB: Insert data konten
+    DB -> Service: Berhasil
+    Service -> Ctrl: Konten tersimpan
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> Admin: Konten berhasil ditambahkan
+end
+
+alt Hapus Konten
+    Admin -> Page: Pilih konten untuk hapus
+    Admin -> Page: Konfirmasi hapus
+    Page -> Ctrl: Request hapus konten
+    Ctrl -> Service: Hapus konten
+    Service -> DB: Delete konten
+    DB -> Service: Berhasil
+    Service -> Ctrl: Konten terhapus
+    Ctrl -> Page: Konfirmasi sukses
+    Page -> Admin: Konten berhasil dihapus
+end
+
+@enduml
